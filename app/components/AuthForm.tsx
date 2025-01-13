@@ -15,9 +15,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { createAccount } from "@/lib/actions/user.actions";
 
 // 定义表单类型：登录或注册
 type FormType = "sign-in" | "sign-up";
@@ -44,11 +45,29 @@ const AuthForm = ({ type }: { type: FormType }) => {
     mode: "onChange", // 输入变化时就验证
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [accountId, setAccountId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   // 表单提交处理函数
   // values 包含验证通过的表单数据
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setIsLoading(true);
+    setErrorMessage("");
+    try {
+      const user = await createAccount({
+        email: values.email || "",
+        fullName: values.username || "",
+      });
+      console.log(user);
+      setAccountId(user.accountId);
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage("发生未知错误");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // 渲染表单
@@ -60,7 +79,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           <h1 className="form-title">
             {type === "sign-in" ? "Sign In" : "Sign Up"}
           </h1>
-          {type === "sign-in" && (
+          {
             <FormField
               control={form.control}
               name="username"
@@ -85,7 +104,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 </FormItem>
               )}
             />
-          )}
+          }
           <FormField
             control={form.control}
             name="email"
