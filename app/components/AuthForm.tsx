@@ -19,6 +19,7 @@ import { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { createAccount } from "@/lib/actions/user.actions";
+import OTPModal from "./OTPModal";
 
 // 定义表单类型：登录或注册
 type FormType = "sign-in" | "sign-up";
@@ -57,7 +58,6 @@ const AuthForm = ({ type }: { type: FormType }) => {
         email: values.email || "",
         fullName: values.username || "",
       });
-      console.log(user);
       setAccountId(user.accountId);
     } catch (error) {
       if (error instanceof Error) {
@@ -159,6 +159,9 @@ const AuthForm = ({ type }: { type: FormType }) => {
           </div>
         </form>
       </Form>
+      {accountId && (
+        <OTPModal accountId={accountId!} email={form.getValues("email")} />
+      )}
     </>
   );
 };
