@@ -14,6 +14,8 @@ import { navItems } from "@/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import FileUploader from "./FileUploader";
 const MobileNavigatic = ({
   fullName,
   avatar,
@@ -93,6 +95,22 @@ const MobileNavigatic = ({
             </ul>
           </nav>
           <Separator className="my-5 bg-light-200/20" />
+          <div className="flex flex-col justify-between gap-5 pb-5">
+            <FileUploader />
+            <Button
+              type="submit"
+              className="mobile-sign-out-button"
+              onClick={() => {}}
+            >
+              <Image
+                src="/assets/icons/logout.svg"
+                alt="logout"
+                width={24}
+                height={24}
+                className="w-6"
+              />
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     </header>
