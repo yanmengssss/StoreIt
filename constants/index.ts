@@ -81,6 +81,6 @@ export const sortTypes = [
   },
 ];
 export const avatarPlaceholderUrl =
-  "https://c-ssl.dtstatic.com/uploads/blog/202203/22/20220322210603_2d84a.thumb.300_0.jpg_webp";
+  "https://c-ssl.dtstatic.com/uploads/blog/202309/22/JOS3dXY9TWjobyg.thumb.300_0.jpg_webp";
 
 export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB

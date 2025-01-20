@@ -6,6 +6,7 @@ import { Query, ID } from "node-appwrite";
 import { parseStringfy } from "../utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
+import { redirect } from "next/navigation";
 //注册
 //查询数据库
 // 根据邮箱查询用户信息
@@ -94,4 +95,18 @@ export const getUserInfo = async () => {
   );
   if (user.total <= 0) return null;
   return parseStringfy(user.documents[0]);
+};
+
+//退出登陆
+export const signOut = async () => {
+  const { account } = await createSessionClient();
+  try {
+    await account.deleteSession("current");
+    (await cookies()).delete("appwrite-session");
+  } catch (error) {
+    console.log(error);
+    throw new Error(error as string);
+  } finally {
+    redirect("/sign-in");
+  }
 };
