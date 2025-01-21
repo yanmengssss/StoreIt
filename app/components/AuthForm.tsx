@@ -18,7 +18,7 @@ import { Input } from "@/components/ui/input";
 import { use, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createAccount } from "@/lib/actions/user.actions";
+import { createAccount, signInUser } from "@/lib/actions/user.actions";
 import OTPModal from "./OTPModal";
 
 // 定义表单类型：登录或注册
@@ -26,24 +26,26 @@ type FormType = "sign-in" | "sign-up";
 
 // 认证表单组件，接收 type 参数确定是登录还是注册表单
 const AuthForm = ({ type }: { type: FormType }) => {
-  // 定义表单验证模式
-  const formSchema = z.object({
-    username: z.string().min(2, {
-      message: "用户名至少需要2个字符",
-    }),
-    email: z.string().email({ message: "请输入有效的邮箱地址" }),
-  });
-
+  // 修改表单验证模式，根据表单类型动态设置验证规则
+  const authFormSchema = (formType: FormType) => {
+    return z.object({
+      email: z.string().email(),
+      username:
+        formType === "sign-up"
+          ? z.string().min(2).max(50)
+          : z.string().optional(),
+    });
+  };
   // 使用 react-hook-form 创建表单实例
   // 泛型参数使用 z.infer 从 schema 中推断类型
+  // 修改表单默认值
+  const formSchema = authFormSchema(type);
   const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema), // 使用 zod 验证器
+    resolver: zodResolver(formSchema),
     defaultValues: {
-      username: "", // 设置默认值
+      username: "",
       email: "",
     },
-    // 添加实时验证配置
-    mode: "onChange", // 输入变化时就验证
   });
   const [isLoading, setIsLoading] = useState(false);
   const [accountId, setAccountId] = useState(null);
@@ -54,10 +56,13 @@ const AuthForm = ({ type }: { type: FormType }) => {
     setIsLoading(true);
     setErrorMessage("");
     try {
-      const user = await createAccount({
-        email: values.email || "",
-        fullName: values.username || "",
-      });
+      const user =
+        type === "sign-up"
+          ? await createAccount({
+              email: values.email || "",
+              fullName: values.username || "",
+            })
+          : await signInUser({ email: values.email || "" });
       setAccountId(user.accountId);
     } catch (error) {
       if (error instanceof Error) {
@@ -79,7 +84,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
           <h1 className="form-title">
             {type === "sign-in" ? "Sign In" : "Sign Up"}
           </h1>
-          {
+          {type === "sign-up" && (
             <FormField
               control={form.control}
               name="username"
@@ -104,7 +109,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
                 </FormItem>
               )}
             />
-          }
+          )}
           <FormField
             control={form.control}
             name="email"

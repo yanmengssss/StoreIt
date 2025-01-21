@@ -110,3 +110,18 @@ export const signOut = async () => {
     redirect("/sign-in");
   }
 };
+
+//用户登陆
+export const signInUser = async ({ email }: { email: string }) => {
+  try {
+    const existingUser = await getUSerByEmail(email);
+    if (existingUser) {
+      await sendEmailOTP({ email });
+      return parseStringfy({ accountId: existingUser.accountId });
+    }
+    return parseStringfy({ accountId: null, error: "User not found" });
+  } catch (error) {
+    console.log(error);
+    throw new Error(error as string);
+  }
+};
