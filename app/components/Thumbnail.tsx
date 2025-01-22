@@ -1,8 +1,35 @@
+import { cn, getFileIcon } from "@/lib/utils";
 import Image from "next/image";
+interface Props {
+  type: string;
+  extension: string;
+  url?: string;
+  imageClassName?: string;
+  className?: string;
+}
+const Thumbnail = ({
+  type,
+  extension,
+  url = "",
+  imageClassName,
+  className,
+}: Props) => {
+  const isImage = type === "image" && extension !== "svg";
 
-const Thumbnail = () => {
   return (
-    <Image src="/assets/icons/upload.svg" alt="upload" width={24} height={24} />
+    <figure className={cn("thumbnail", className)}>
+      <Image
+        src={isImage ? url : getFileIcon(extension, type)}
+        alt="thumbnail"
+        width={100}
+        height={100}
+        className={cn(
+          "size-8 object-contain",
+          imageClassName,
+          isImage && "thumbnail-image"
+        )}
+      />
+    </figure>
   );
 };
 export default Thumbnail;

@@ -3,19 +3,51 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { cn, getFileType } from "@/lib/utils";
+import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Thumbnail from "./Thumbnail";
+import { uploadFile } from "@/lib/actions/file.actions";
+import { useToast } from "@/hooks/use-toast";
+import { MAX_FILE_SIZE } from "@/constants";
+import { usePathname } from "next/navigation";
 interface Props {
   ownerId: string;
   accountId: string;
   className?: string;
 }
 const FileUploader = ({ ownerId, accountId, className }: Props) => {
+  const path = usePathname();
   const [files, setFiles] = useState<File[]>([]);
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    setFiles(acceptedFiles);
-    // Do something with the files
-  }, []);
+  const { toast } = useToast();
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      setFiles(acceptedFiles);
+      const uploadPromise = acceptedFiles.map(async (file) => {
+        if (file.size > MAX_FILE_SIZE) {
+          setFiles((prevFiles) =>
+            prevFiles.filter((prevFile) => prevFile.name !== file.name)
+          );
+          return toast({
+            description: (
+              <p className="body-2 text-white">
+                <span className="font-semibold">{file.name}</span> is too large.
+                Max file size is {MAX_FILE_SIZE}.
+              </p>
+            ),
+            className: "error-toast",
+          });
+        }
+        return uploadFile({ file, ownerId, accountId, path }).then((res) => {
+          if (res) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((prevFile) => prevFile.name !== file.name)
+            );
+          }
+        });
+      });
+      await Promise.all(uploadPromise);
+    },
+    [ownerId, accountId, path]
+  );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
   });
@@ -34,7 +66,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
       </Button>
       {files.length > 0 && (
         <ul className="uploader-preview-list">
-          <h4 className="h4 text-lime-100">Uploading</h4>
+          <h4 className="h4 text-light-100">Uploading</h4>
           {files.map((file, index) => {
             const { type, extension } = getFileType(file.name);
             return (
@@ -43,17 +75,16 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                 className="uploader-preview-item"
               >
                 <div className="flex items-center gap-3">
-                  <Thumbnail />
+                  <Thumbnail
+                    type={type}
+                    extension={extension}
+                    url={convertFileToUrl(file)}
+                  />
                 </div>
               </li>
             );
           })}
         </ul>
-      )}
-      {isDragActive ? (
-        <p>Drop the files here ...</p>
-      ) : (
-        <p>Drag 'n' drop some files here, or click to select files</p>
       )}
     </div>
   );
