@@ -4,12 +4,16 @@ import Image from "next/image";
 import Search from "./Search";
 import FileUploader from "./FileUploader";
 import { signOut } from "@/lib/actions/user.actions";
-const Header = () => {
+interface Props {
+  ownerId: string;
+  accountId: string;
+}
+const Header = ({ ownerId, accountId }: Props) => {
   return (
     <header className="header">
       <Search />
       <div className="header-wrapper">
-        <FileUploader />
+        <FileUploader ownerId={ownerId} accountId={accountId} />
         <form
           aria-expanded
           action={async () => {

@@ -38,6 +38,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         }
         return uploadFile({ file, ownerId, accountId, path }).then((res) => {
           if (res) {
+            console.log(res, "res");
             setFiles((prevFiles) =>
               prevFiles.filter((prevFile) => prevFile.name !== file.name)
             );
@@ -51,6 +52,13 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
   });
+  const handleRemoveFile = (
+    e: React.MouseEvent<HTMLImageElement, MouseEvent>,
+    name: string
+  ) => {
+    e.stopPropagation();
+    setFiles((prevFiles) => prevFiles.filter((file) => file.name !== name));
+  };
 
   return (
     <div {...getRootProps()} className="cursor-pointer">
@@ -80,7 +88,23 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                     extension={extension}
                     url={convertFileToUrl(file)}
                   />
+                  <div className="preview-item-name">
+                    {file.name}
+                    <Image
+                      src="/assets/icons/file-loader.gif"
+                      width={80}
+                      height={26}
+                      alt="Loader"
+                    />
+                  </div>
                 </div>
+                <Image
+                  src="/assets/icons/remove.svg"
+                  width={24}
+                  height={24}
+                  alt="Remove"
+                  onClick={(e) => handleRemoveFile(e, file.name)}
+                />
               </li>
             );
           })}
