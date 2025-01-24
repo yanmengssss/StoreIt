@@ -10,7 +10,7 @@ interface Props {
 }
 const Header = ({ ownerId, accountId }: Props) => {
   return (
-    <header className="header">
+    <header className="header" >
       <Search />
       <div className="header-wrapper">
         <FileUploader ownerId={ownerId} accountId={accountId} />
