@@ -45,8 +45,6 @@ export const ShareInput = ({
   onInputChange: React.Dispatch<React.SetStateAction<string[]>>;
   onRemove: (email: string) => void;
 }) => {
-  console.log(file.users, 123123);
-  console.log(file);
   return (
     <>
       <ImageThumbnail file={file} />

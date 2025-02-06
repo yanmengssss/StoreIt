@@ -63,8 +63,8 @@ const Search = () => {
             {results.length > 0 ? (
               results.map((file) => (
                 <li
-                  className="flex justify-between"
                   key={file.$id}
+                  className="flex justify-between"
                   onClick={() => handleClick(file)}
                 >
                   <div className="flex cursor-pointer items-center gap-4">
