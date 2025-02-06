@@ -86,15 +86,19 @@ export const verifyOTP = async ({
 
 //获取用户信息
 export const getUserInfo = async () => {
-  const { databases, account } = await createSessionClient();
-  const result = await account.get();
-  const user = await databases.listDocuments(
-    config.databaseId,
-    config.usersCollectionId,
-    [Query.equal("accountId", [result.$id])]
-  );
-  if (user.total <= 0) return null;
-  return parseStringfy(user.documents[0]);
+  try {
+    const { databases, account } = await createSessionClient();
+    const result = await account.get();
+    const user = await databases.listDocuments(
+      config.databaseId,
+      config.usersCollectionId,
+      [Query.equal("accountId", [result.$id])]
+    );
+    if (user.total <= 0) return null;
+    return parseStringfy(user.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 //退出登陆
