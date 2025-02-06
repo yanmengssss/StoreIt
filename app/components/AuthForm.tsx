@@ -55,23 +55,38 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage("");
-    try {
-      const user =
-        type === "sign-up"
-          ? await createAccount({
-              email: values.email || "",
-              fullName: values.username || "",
-            })
-          : await signInUser({ email: values.email || "" });
-      setAccountId(user.accountId);
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("发生未知错误");
-      }
-    } finally {
+    // try {
+    //   const user =
+    //     type === "sign-up"
+    //       ? await createAccount({
+    //           email: values.email || "",
+    //           fullName: values.username || "",
+    //         })
+    //       : await signInUser({ email: values.email || "" });
+    //   setAccountId(user.accountId);
+    // } catch (error) {
+    //   if (error instanceof Error) {
+    //     setErrorMessage(error.message);
+    //   } else {
+    //     setErrorMessage("发生未知错误");
+    //   }
+    // } finally {
+    //   setIsLoading(false);
+    // }
+
+    //前后端分离
+    const res =
+      type === "sign-up"
+        ? await createAccount({
+            email: values.email || "",
+            fullName: values.username || "",
+          })
+        : await signInUser({ email: values.email || "" });
+    if (res.code === 200) {
+      setAccountId(res.data);
       setIsLoading(false);
+    } else {
+      setErrorMessage("发生未知错误");
     }
   };
 

@@ -33,6 +33,7 @@ export const sendEmailOTP = async ({ email }: { email: string }) => {
     throw new Error(error as string);
   }
 };
+//创建用户
 export const createAccount = async ({
   email,
   fullName,
@@ -58,7 +59,12 @@ export const createAccount = async ({
       }
     );
   }
-  return parseStringfy({ accountId });
+  // return parseStringfy({ accountId });
+  return {
+    data: accountId,
+    code: 200,
+    message: "Email sent successfully",
+  };
 };
 //验证OTP
 export const verifyOTP = async ({
@@ -96,6 +102,7 @@ export const getUserInfo = async () => {
     );
     if (user.total <= 0) return null;
     return parseStringfy(user.documents[0]);
+    
   } catch (error) {
     console.log(error);
   }
@@ -121,7 +128,12 @@ export const signInUser = async ({ email }: { email: string }) => {
     const existingUser = await getUSerByEmail(email);
     if (existingUser) {
       await sendEmailOTP({ email });
-      return parseStringfy({ accountId: existingUser.accountId });
+      // return parseStringfy({ accountId: existingUser.accountId });
+      return {
+        data: existingUser.accountId,
+        code: 200,
+        message: "Email sent successfully",
+      };
     }
     return parseStringfy({ accountId: null, error: "User not found" });
   } catch (error) {
