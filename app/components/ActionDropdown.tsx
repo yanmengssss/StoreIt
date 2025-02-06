@@ -29,6 +29,7 @@ import {
 } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "./ActionsModalContent";
+import { getUserInfo } from "@/lib/actions/user.actions";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const path = usePathname();
@@ -38,6 +39,8 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
+  const [currentUserEmail, setCurrentUserEmail] = useState("");
+
   useEffect(() => {
     if (!isModalOpen) {
       setisDropDownOpen(false);
@@ -46,6 +49,15 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       setisDropDownOpen(false);
     }
   }, [isModalOpen]);
+
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      const currentUser = await getUserInfo();
+      setCurrentUserEmail(currentUser.email);
+    };
+    fetchUserEmail();
+  }, []);
+
   const closeAllModals = () => {
     setisModalOpen(false);
     setisDropDownOpen(false);
@@ -113,6 +125,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               file={file}
               onInputChange={setEmails}
               onRemove={handleRemoveUser}
+              currentUserEmail={currentUserEmail}
             />
           )}
           {value === "delete" && (
@@ -127,18 +140,20 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             <Button onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
-            <Button onClick={handleAction} className="modal-submit-button">
-              <p className="capitalize">{value}</p>
-              {isLoading && (
-                <Image
-                  className="animate-spin"
-                  src="/assets/icons/loader.svg"
-                  alt="loader"
-                  width={24}
-                  height={24}
-                />
-              )}
-            </Button>
+            {(value !== "share" || file.owner.email === currentUserEmail) && (
+              <Button onClick={handleAction} className="modal-submit-button">
+                <p className="capitalize">{value}</p>
+                {isLoading && (
+                  <Image
+                    className="animate-spin"
+                    src="/assets/icons/loader.svg"
+                    alt="loader"
+                    width={24}
+                    height={24}
+                  />
+                )}
+              </Button>
+            )}
           </DialogFooter>
         )}
       </DialogContent>
@@ -190,15 +205,18 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
                   {actionItem.label}
                 </Link>
               ) : (
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </div>
+                (actionItem.value !== "delete" ||
+                  currentUserEmail === file.owner.email) && (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={actionItem.icon}
+                      alt={actionItem.label}
+                      width={30}
+                      height={30}
+                    />
+                    {actionItem.label}
+                  </div>
+                )
               )}
             </DropdownMenuItem>
           ))}

@@ -6,6 +6,7 @@ import { convertFileSize, formatDateTime } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { getUserInfo } from "@/lib/actions/user.actions";
 const ImageThumbnail = ({ file }: { file: Models.Document }) => {
   return (
     <div className="file-details-thumbnail">
@@ -40,27 +41,36 @@ export const ShareInput = ({
   file,
   onInputChange,
   onRemove,
+  currentUserEmail,
 }: {
   file: Models.Document;
   onInputChange: React.Dispatch<React.SetStateAction<string[]>>;
   onRemove: (email: string) => void;
+  currentUserEmail: string;
 }) => {
   return (
     <>
       <ImageThumbnail file={file} />
       <div className="share-wrapper">
-        <p className="subtitle-2 pl-1 text-light-100">Share file with users</p>
-        <Input
-          type="email"
-          placeholder="Enter email address"
-          onChange={(e) => onInputChange(e.target.value.trim().split(","))}
-          className="share-input-field"
-        ></Input>
+        {currentUserEmail !== "" && file.owner.email === currentUserEmail && (
+          <>
+            <p className="subtitle-2 pl-1 text-light-100">
+              Share file with users
+            </p>
+            <Input
+              type="email"
+              placeholder="Enter email address"
+              onChange={(e) => onInputChange(e.target.value.trim().split(","))}
+              className="share-input-field"
+            ></Input>
+          </>
+        )}
         <div className="pt-4">
           <div className="flex justify-between">
             <p className="subtitle-2 text-light-100">Shared with</p>
             <p className="subtitle-2 text-light-200">
               {file.users.length} users
+              {/* {file.owner.email} */}
             </p>
           </div>
           <ul className="pt-2">
@@ -70,18 +80,20 @@ export const ShareInput = ({
                 className="flex items-center justify-between gap-2"
               >
                 <p className="subtitle-2">{email}</p>
-                <Button
-                  onClick={() => onRemove(email)}
-                  className="share-remove-user"
-                >
-                  <Image
-                    src="/assets/icons/remove.svg"
-                    alt="remove"
-                    width={24}
-                    height={24}
-                    className="remove-icon"
-                  />
-                </Button>
+                {email !== currentUserEmail && currentUserEmail !== "" && (
+                  <Button
+                    onClick={() => onRemove(email)}
+                    className="share-remove-user"
+                  >
+                    <Image
+                      src="/assets/icons/remove.svg"
+                      alt="remove"
+                      width={24}
+                      height={24}
+                      className="remove-icon"
+                    />
+                  </Button>
+                )}
               </li>
             ))}
           </ul>
