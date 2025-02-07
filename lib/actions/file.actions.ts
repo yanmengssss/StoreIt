@@ -46,16 +46,30 @@ export const uploadFile = async ({
         ID.unique(),
         fileDocument
       )
+      .then((res) => res)
       .catch(async (error: unknown) => {
         await storage.deleteFile(appwriteConfig.bucketId, bucketFile.$id);
-        handleError(error, "Failed to create file document");
+        // handleError(error, "Failed to create file document");
+        return {
+          code: 400,
+          message: error,
+        };
       });
 
     revalidatePath(path);
-    return parseStringfy(newFile);
+    // return parseStringfy(newFile);
+    return {
+      data: newFile,
+      code: 200,
+      message: "success",
+    };
   } catch (error) {
     // handleError(error, "Failed to upload file");
-    throw error;
+    // throw error;
+    return {
+      code: 400,
+      message: error,
+    };
   } finally {
   }
 };
@@ -77,9 +91,17 @@ export const getFiles = async ({
       queries
     );
 
-    return parseStringfy(files);
+    // return parseStringfy(files);
+    return {
+      code: 200,
+      data: files,
+    };
   } catch (error) {
-    handleError(error, "Failed to get current user");
+    // handleError(error, "Failed to get current user");
+    return {
+      code: 400,
+      message: error,
+    };
   }
 };
 
@@ -127,7 +149,8 @@ export const renameFile = async ({
 }) => {
   const { databases } = await createAdminClient();
   try {
-    const newName = `${Name}.${extension}`;
+    const name = Name.split(".").slice(0, -1).join(".");
+    const newName = `${name}.${extension}`;
     const updatedFile = await databases.updateDocument(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,
@@ -135,9 +158,18 @@ export const renameFile = async ({
       { name: newName }
     );
     revalidatePath(path);
-    return parseStringfy(updatedFile);
+    // return parseStringfy(updatedFile);
+    return {
+      data: updatedFile,
+      code: 200,
+      message: "success",
+    };
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    // handleError(error, "Failed to rename file");
+    return {
+      code: 400,
+      message: error,
+    };
   }
 };
 
@@ -159,9 +191,18 @@ export const updateFileUsers = async ({
       { users: emails }
     );
     revalidatePath(path);
-    return parseStringfy(updatedFile);
+    // return parseStringfy(updatedFile);
+    return {
+      data: updatedFile,
+      code: 200,
+      message: "success",
+    };
   } catch (error) {
-    handleError(error, "Failed to rename file");
+    // handleError(error, "Failed to rename file");
+    return {
+      code: 400,
+      message: error,
+    };
   }
 };
 
@@ -185,9 +226,17 @@ export const deleteFile = async ({
       await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
     }
     revalidatePath(path);
-    return parseStringfy({ status: "success" });
+    // return parseStringfy({ status: "success" });
+    return {
+      code: 200,
+      message: "success",
+    };
   } catch (error) {
-    handleError(error, "Failed to delete file");
+    // handleError(error, "Failed to delete file");
+    return {
+      code: 400,
+      message: error,
+    };
   }
 };
 
@@ -225,9 +274,17 @@ export async function getTotalSpaceUsed() {
         totalSpace[fileType].latestDate = file.$updatedAt;
       }
     });
-
-    return parseStringfy(totalSpace);
+    // console.log(totalSpace);
+    return {
+      code: 200,
+      data: totalSpace,
+    };
+    // return parseStringfy(totalSpace);
   } catch (error) {
-    handleError(error, "Error calculating total space used:, ");
+    // handleError(error, "Error calculating total space used:, ");
+    return {
+      code: 400,
+      message: error,
+    };
   }
 }

@@ -7,6 +7,7 @@ import { parseStringfy } from "../utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
+import userStore from "@/store/user";
 //注册
 //查询数据库
 // 根据邮箱查询用户信息
@@ -83,6 +84,7 @@ export const verifyOTP = async ({
       sameSite: "strict",
       secure: true,
     });
+    // userStore().setToken(session.$id);
     return parseStringfy({ sessionId: session.$id });
   } catch (error) {
     console.log(error);
@@ -102,7 +104,6 @@ export const getUserInfo = async () => {
     );
     if (user.total <= 0) return null;
     return parseStringfy(user.documents[0]);
-    
   } catch (error) {
     console.log(error);
   }
@@ -118,6 +119,7 @@ export const signOut = async () => {
     console.log(error);
     throw new Error(error as string);
   } finally {
+    // userStore().clearToken();
     redirect("/sign-in");
   }
 };
@@ -135,7 +137,11 @@ export const signInUser = async ({ email }: { email: string }) => {
         message: "Email sent successfully",
       };
     }
-    return parseStringfy({ accountId: null, error: "User not found" });
+    // return parseStringfy({ accountId: null, error: "User not found" });
+    return {
+      code: 400,
+      message: "User not found",
+    };
   } catch (error) {
     console.log(error);
     throw new Error(error as string);

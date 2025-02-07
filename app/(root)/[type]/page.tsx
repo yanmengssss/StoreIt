@@ -9,9 +9,16 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
   const searchText = (await searchParams)?.query as string | "";
   const sort = (await searchParams)?.sort as string | "";
   const types = getFileTypesParams(type) as FileType[];
-  const files = await getFiles({ types, searchText, sort });
+  const res = await getFiles({ types, searchText, sort });
+  let files: any = {
+    documents: [],
+    total: 0,
+  };
+  if (res && res.code === 200) {
+    files = res.data;
+  }
   let size = 0;
-  files.documents.map((file: Models.Document) => {
+  files.documents?.map((file: Models.Document) => {
     size += file.size;
   });
 

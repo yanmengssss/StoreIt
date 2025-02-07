@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FileUploader from "./FileUploader";
 import { signOut } from "@/lib/actions/user.actions";
+import userStore from "@/store/user";
 const MobileNavigatic = ({
   fullName,
   avatar,
@@ -101,7 +102,9 @@ const MobileNavigatic = ({
             <Button
               type="submit"
               className="mobile-sign-out-button"
-              onClick={async () => await signOut()}
+              onClick={async () => {
+                await signOut();
+              }}
             >
               <Image
                 src="/assets/icons/logout.svg"

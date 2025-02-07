@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import userStore from "@/store/user";
+// import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,7 +38,10 @@ const OTPModal = ({
     setLoading(true);
     try {
       const sessionId = await verifyOTP({ accountId, password });
-      if (sessionId) router.push("/");
+      if (sessionId) {
+        // userStore().setToken(sessionId);
+        router.push("/");
+      }
     } catch (error) {
       console.log("Failed to verify OTP", error);
     }

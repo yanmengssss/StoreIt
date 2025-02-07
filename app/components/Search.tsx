@@ -25,7 +25,14 @@ const Search = () => {
         setResults([]);
         return router.push(path.replace(searchParams.toString(), ""));
       }
-      const files = await getFiles({ searchText: query, types: [] });
+      const res = await getFiles({ searchText: query, types: [] });
+      let files: any = {
+        documents: [],
+        total: 0,
+      };
+      if (res && res.code === 200) {
+        files = res.data;
+      }
       setResults(files.documents);
       setOpen(true);
     };

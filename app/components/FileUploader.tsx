@@ -37,8 +37,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
           });
         }
         return uploadFile({ file, ownerId, accountId, path }).then((res) => {
-          if (res) {
-            console.log(res, "res");
+          if (res.code === 200) {
             setFiles((prevFiles) =>
               prevFiles.filter((prevFile) => prevFile.name !== file.name)
             );

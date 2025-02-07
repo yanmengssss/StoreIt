@@ -78,7 +78,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const handleAction = async () => {
     if (!action) return;
     setIsLoading(true);
-    let success = false;
+    // let success = false;
     const actions = {
       rename: () =>
         renameFile({
@@ -96,9 +96,10 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       delete: () =>
         deleteFile({ fileId: file.$id, path, bucketFileId: file.bucketFielId }),
     };
-    success = await actions[action.value as keyof typeof actions]();
-    if (success) {
-      closeAllModals();
+    let res = await actions[action.value as keyof typeof actions]();
+    console.log(res);
+    if (res.code === 200) {
+      // closeAllModals();
       setIsLoading(false);
     }
   };
