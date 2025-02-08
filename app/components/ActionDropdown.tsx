@@ -30,6 +30,7 @@ import {
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "./ActionsModalContent";
 import { getUserInfo } from "@/lib/actions/user.actions";
+import { getInfo } from "@/lib/apis/user";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const path = usePathname();
@@ -52,8 +53,8 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
 
   useEffect(() => {
     const fetchUserEmail = async () => {
-      const currentUser = await getUserInfo();
-      setCurrentUserEmail(currentUser.email);
+      const currentUser: any = await getInfo();
+      setCurrentUserEmail(currentUser.data.email);
     };
     fetchUserEmail();
   }, []);

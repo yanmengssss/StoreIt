@@ -12,7 +12,7 @@ const nextConfig = {
     },
   },
   // 确保没有禁用默认的 CSS 处理
-    images: {
+  images: {
     remotePatterns: [
       {
         protocol: "https",
@@ -21,6 +21,14 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "cloud.appwrite.io",
+      },
+      {
+        protocol: "https",
+        hostname: "www.google.com",
+      },
+      {
+        protocol: "https",
+        hostname: "dthezntil550i.cloudfront.net",
       },
     ],
   },

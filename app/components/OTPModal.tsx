@@ -22,38 +22,69 @@ import {
 } from "@/components/ui/input-otp";
 import { sendEmailOTP, verifyOTP } from "@/lib/actions/user.actions";
 import { useRouter } from "next/navigation";
+import { getOtp, login, register } from "@/lib/apis/user";
 const OTPModal = ({
   accountId,
   email,
+  type,
 }: {
   accountId: string;
   email: string;
+  type: string;
 }) => {
   const [otp, setOtp] = useState(true);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  //appwrite
+  // const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const sessionId = await verifyOTP({ accountId, password });
+  //     if (sessionId) {
+  //       // userStore().setToken(sessionId);
+  //       router.push("/");
+  //     }
+  //   } catch (error) {
+  //     console.log("Failed to verify OTP", error);
+  //   }
+  //   setLoading(false);
+  // };
   const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const sessionId = await verifyOTP({ accountId, password });
-      if (sessionId) {
-        // userStore().setToken(sessionId);
-        router.push("/");
-      }
-    } catch (error) {
-      console.log("Failed to verify OTP", error);
+    let res: any = null;
+    if (type === "sign-in") {
+      res = await login({
+        email,
+        otp:password,
+      });
+    } else if (type === "sign-up") {
+      res = await register({
+        email,
+        otp:password,
+        name: accountId,
+      });
+    }
+    if (res.code === 200) {
+      router.push("/");
     }
     setLoading(false);
   };
-  //重新发送
+  //重新发送 appwrite
+  // const handleResendOto = async () => {
+  //   try {
+  //     await sendEmailOTP({ email });
+  //   } catch (error) {
+  //     console.log("Failed to resend OTP", error);
+  //   }
+  // };
   const handleResendOto = async () => {
-    try {
-      await sendEmailOTP({ email });
-    } catch (error) {
-      console.log("Failed to resend OTP", error);
-    }
+    await getOtp({
+      email: email || "",
+      type: type === "sign-in" ? "login" : "register",
+    });
   };
   return (
     <>

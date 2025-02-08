@@ -20,6 +20,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createAccount, signInUser } from "@/lib/actions/user.actions";
 import OTPModal from "./OTPModal";
+import { getOtp } from "@/lib/apis/user";
 
 // 定义表单类型：登录或注册
 type FormType = "sign-in" | "sign-up";
@@ -55,6 +56,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setErrorMessage("");
+    //原来appwrite
     // try {
     //   const user =
     //     type === "sign-up"
@@ -74,16 +76,23 @@ const AuthForm = ({ type }: { type: FormType }) => {
     //   setIsLoading(false);
     // }
 
-    //前后端分离
-    const res =
-      type === "sign-up"
-        ? await createAccount({
-            email: values.email || "",
-            fullName: values.username || "",
-          })
-        : await signInUser({ email: values.email || "" });
+    //restful api+appwrite
+    // const res =
+    //   type === "sign-up"
+    //     ? await createAccount({
+    //         email: values.email || "",
+    //         fullName: values.username || "",
+    //       })
+    //     : await signInUser({ email: values.email || "" });
+
+    const res = (await getOtp({
+      email: values.email || "",
+      type: type === "sign-in" ? "login" : "register",
+    })) as any;
+
     if (res.code === 200) {
-      setAccountId(res.data);
+      console.log(res);
+      setAccountId(type !== "sign-in" ? values.username : res.message);
       setIsLoading(false);
     } else {
       setErrorMessage("发生未知错误");
@@ -180,7 +189,12 @@ const AuthForm = ({ type }: { type: FormType }) => {
         </form>
       </Form>
       {accountId && (
-        <OTPModal accountId={accountId!} email={form.getValues("email")} />
+        // <OTPModal accountId={accountId!} email={form.getValues("email")} /> appwrite
+        <OTPModal
+          accountId={accountId!}
+          email={form.getValues("email")}
+          type={type}
+        />
       )}
     </>
   );

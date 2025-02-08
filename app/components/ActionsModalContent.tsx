@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { getUserInfo } from "@/lib/actions/user.actions";
+import { getInfo } from "@/lib/apis/user";
 const ImageThumbnail = ({ file }: { file: Models.Document }) => {
   return (
     <div className="file-details-thumbnail">

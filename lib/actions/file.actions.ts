@@ -7,6 +7,7 @@ import { config as appwriteConfig } from "@/lib/appwrite/config";
 import { constructFileUrl, getFileType, parseStringfy } from "../utils";
 import { revalidatePath } from "next/cache";
 import { getUserInfo } from "@/lib/actions/user.actions";
+import { getInfo } from "../apis/user";
 const handleError = (error: unknown, message: string) => {
   console.log(error, message);
   throw error;
@@ -82,8 +83,9 @@ export const getFiles = async ({
 }: GetFilesProps) => {
   const { databases } = await createAdminClient();
   try {
-    const currentUser = await getUserInfo();
-    if (!currentUser) throw new Error("User not found");
+    let currentUser: any = await getInfo();
+    if (currentUser.code !== 200) throw new Error("User not found");
+    currentUser = currentUser.data;
     const queries = createQueries(currentUser, types, searchText, sort, limit);
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
@@ -243,13 +245,13 @@ export const deleteFile = async ({
 export async function getTotalSpaceUsed() {
   try {
     const { databases } = await createAdminClient();
-    const currentUser = await getUserInfo();
+    const currentUser: any = await getInfo();
     if (!currentUser) throw new Error("User is not authenticated.");
 
     const files = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.filesCollectionId,
-      [Query.equal("owner", [currentUser.$id])]
+      [Query.equal("owner", [currentUser.data._id])]
     );
 
     const totalSpace = {
