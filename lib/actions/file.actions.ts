@@ -56,7 +56,7 @@ export const uploadFile = async ({
           message: error,
         };
       });
-
+    console.log(path, 123);
     revalidatePath(path);
     // return parseStringfy(newFile);
     return {
@@ -276,7 +276,7 @@ export async function getTotalSpaceUsed() {
         totalSpace[fileType].latestDate = file.$updatedAt;
       }
     });
-    // console.log(totalSpace);
+    console.log(totalSpace);
     return {
       code: 200,
       data: totalSpace,

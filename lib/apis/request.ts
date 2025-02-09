@@ -1,5 +1,5 @@
 import axios from "axios";
-axios.defaults.baseURL = "http://127.0.0.1:7000";
+axios.defaults.baseURL = "http://47.119.148.251:7000";
 axios.defaults.withCredentials = true;
 (axios.defaults as any).credentials = "include";
 const axiosInstance = axios.create({
