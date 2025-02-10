@@ -8,6 +8,7 @@ import { Models } from "node-appwrite";
 import { useDebounce } from "use-debounce";
 import Thumbnail from "./Thumbnail";
 import FormattedDateTime from "./FormattedDateTime";
+import { getFiless } from "@/lib/apis/files";
 
 const Search = () => {
   const [query, setQuery] = useState("");
@@ -25,7 +26,8 @@ const Search = () => {
         setResults([]);
         return router.push(path.replace(searchParams.toString(), ""));
       }
-      const res = await getFiles({ searchText: query, types: [] });
+      // const res = await getFiles({ searchText: query, types: [] });
+      const res = await getFiless({ searchText: query, types: [] });
       let files: any = {
         documents: [],
         total: 0,
@@ -70,7 +72,7 @@ const Search = () => {
             {results.length > 0 ? (
               results.map((file) => (
                 <li
-                  key={file.$id}
+                  key={file._id}
                   className="flex justify-between"
                   onClick={() => handleClick(file)}
                 >
@@ -86,7 +88,7 @@ const Search = () => {
                     </p>
                   </div>
                   <FormattedDateTime
-                    date={file.$createdAt}
+                    date={file.createdAt}
                     className="caption line-clamp-1 text-light-200 flex items-center"
                   />
                 </li>

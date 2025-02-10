@@ -21,12 +21,13 @@ import Link from "next/link";
 import { createAccount, signInUser } from "@/lib/actions/user.actions";
 import OTPModal from "./OTPModal";
 import { getOtp } from "@/lib/apis/user";
-
+import { useToast } from "@/hooks/use-toast";
 // 定义表单类型：登录或注册
 type FormType = "sign-in" | "sign-up";
 
 // 认证表单组件，接收 type 参数确定是登录还是注册表单
 const AuthForm = ({ type }: { type: FormType }) => {
+  const { toast } = useToast();
   // 修改表单验证模式，根据表单类型动态设置验证规则
   const authFormSchema = (formType: FormType) => {
     return z.object({
@@ -91,11 +92,21 @@ const AuthForm = ({ type }: { type: FormType }) => {
     })) as any;
 
     if (res.code === 200) {
-      console.log(res);
+      //console.log(res);
       setAccountId(type !== "sign-in" ? values.username : res.message);
       setIsLoading(false);
+      toast({
+        title: "验证码已发送",
+        description: "请查收您的邮箱",
+        duration: 1000,
+      });
     } else {
       setErrorMessage("发生未知错误");
+      setIsLoading(false);
+      toast({
+        description: <span className="text-error">发送失败</span>,
+        duration: 1000,
+      });
     }
   };
 
@@ -191,6 +202,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       {accountId && (
         // <OTPModal accountId={accountId!} email={form.getValues("email")} /> appwrite
         <OTPModal
+          changeAccountId={setAccountId}
           accountId={accountId!}
           email={form.getValues("email")}
           type={type}

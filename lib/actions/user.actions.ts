@@ -30,7 +30,7 @@ export const sendEmailOTP = async ({ email }: { email: string }) => {
     const session = await account.createEmailToken(ID.unique(), email); //创建一个邮箱验证令牌，ID.unique()生成一个唯一的ID，email是要发送的邮箱
     return session.userId; //这个用户的userID，后续才可以继续执行验证操作
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     throw new Error(error as string);
   }
 };
@@ -87,7 +87,7 @@ export const verifyOTP = async ({
     // userStore().setToken(session.$id);
     return parseStringfy({ sessionId: session.$id });
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     throw new Error(error as string);
   }
 };
@@ -105,7 +105,7 @@ export const getUserInfo = async () => {
     if (user.total <= 0) return null;
     return parseStringfy(user.documents[0]);
   } catch (error) {
-    console.log(error);
+    //console.log(error);
   }
 };
 
@@ -116,7 +116,7 @@ export const signOut = async () => {
     await account.deleteSession("current");
     (await cookies()).delete("appwrite-session");
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     throw new Error(error as string);
   } finally {
     // userStore().clearToken();
@@ -143,7 +143,7 @@ export const signInUser = async ({ email }: { email: string }) => {
       message: "User not found",
     };
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     throw new Error(error as string);
   }
 };

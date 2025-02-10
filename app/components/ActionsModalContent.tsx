@@ -14,7 +14,7 @@ const ImageThumbnail = ({ file }: { file: Models.Document }) => {
       <Thumbnail type={file.type} extension={file.extension} url={file.url} />
       <div className="flex flex-col">
         <p className="subtitile-2 mb-1">{file.name}</p>
-        <FormattedDateTime date={file.$createdAt} className="caption" />
+        <FormattedDateTime date={file.createdAt} className="caption" />
       </div>
     </div>
   );
@@ -33,7 +33,7 @@ export const FileDetails = ({ file }: { file: Models.Document }) => {
         <DetailRow label="Format:" value={file.extension} />
         <DetailRow label="Size:" value={convertFileSize(file.size)} />
         <DetailRow label="Owner:" value={file.owner.fullName} />
-        <DetailRow label="Last edit:" value={formatDateTime(file.$updatedAt)} />
+        <DetailRow label="Last edit:" value={formatDateTime(file.updatedAt)} />
       </div>
     </>
   );
@@ -46,7 +46,7 @@ export const ShareInput = ({
 }: {
   file: Models.Document;
   onInputChange: React.Dispatch<React.SetStateAction<string[]>>;
-  onRemove: (email: string) => void;
+  onRemove: (email: string, file: Models.Document) => void;
   currentUserEmail: string;
 }) => {
   return (
@@ -83,7 +83,7 @@ export const ShareInput = ({
                 <p className="subtitle-2">{email}</p>
                 {email !== currentUserEmail && currentUserEmail !== "" && (
                   <Button
-                    onClick={() => onRemove(email)}
+                    onClick={() => onRemove(email, file)}
                     className="share-remove-user"
                   >
                     <Image

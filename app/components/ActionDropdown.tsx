@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { Models } from "node-appwrite";
 import Image from "next/image";
 import {
@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { actionsDropdownItems } from "@/constants";
-import { constructDownloadUrl } from "@/lib/utils";
+import { constructDownloadUrl, downloadFile } from "@/lib/utils";
 import Link from "next/link";
 import {
   Dialog,
@@ -31,13 +31,18 @@ import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "./ActionsModalContent";
 import { getUserInfo } from "@/lib/actions/user.actions";
 import { getInfo } from "@/lib/apis/user";
+import { deleteFiless, reName, shareFile } from "@/lib/apis/files";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const path = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
   const [isModalOpen, setisModalOpen] = useState(false);
   const [isDropDownOpen, setisDropDownOpen] = useState(false);
   const [action, setAction] = useState<ActionType | null>(null);
-  const [name, setName] = useState(file.name);
+  const [name, setName] = useState(file.name.split(".").slice(0, -1).join("."));
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [currentUserEmail, setCurrentUserEmail] = useState("");
@@ -65,15 +70,24 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     setAction(null);
     setName(file.name);
   };
-  const handleRemoveUser = async (email: string) => {
+  const handleRemoveUser = async (email: string, file: Models.Document) => {
     const updateEmail = emails.filter((e) => e !== email);
-    const success = await updateFileUsers({
-      fileId: file.$id,
-      emails: updateEmail,
-      path,
+    // const success = await updateFileUsers({
+    //   fileId: file._id,
+    //   emails: updateEmail,
+    //   path,
+    // });
+    const success = await shareFile({
+      bucketFileId: file.bucketFileId,
+      users: [email],
+      type: "del",
     });
     if (success) {
-      setEmails(updateEmail);
+      router.refresh();
+      toast({
+        duration: 1000,
+        description: "移除成功！",
+      });
     }
   };
   const handleAction = async () => {
@@ -82,26 +96,48 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
     // let success = false;
     const actions = {
       rename: () =>
-        renameFile({
-          fileId: file.$id,
-          Name: name,
+        // renameFile({
+        //   fileId: file._id,
+        //   Name: name,
+        //   extension: file.extension,
+        //   path,
+        // }),
+        reName({
+          bucketFileId: file.bucketFileId,
+          name,
           extension: file.extension,
-          path,
         }),
       share: () =>
-        updateFileUsers({
-          fileId: file.$id,
-          emails,
-          path,
+        // updateFileUsers({
+        //   fileId: file._id,
+        //   emails,
+        //   path,
+        // }),
+        shareFile({
+          bucketFileId: file.bucketFileId,
+          users: emails,
+          type: "add",
         }),
       delete: () =>
-        deleteFile({ fileId: file.$id, path, bucketFileId: file.bucketFielId }),
+        // deleteFile({ fileId: file.$id, path, bucketFileId: file.bucketFielId }),
+        deleteFiless({ bucketFileId: file.bucketFileId }),
     };
     let res = await actions[action.value as keyof typeof actions]();
-    console.log(res);
+    //console.log(res);
     if (res.code === 200) {
       // closeAllModals();
       setIsLoading(false);
+      toast({
+        description: `File updated successfully`,
+        duration: 2000,
+      });
+      router.refresh();
+    } else {
+      setIsLoading(false);
+      toast({
+        description: `File updated failed`,
+        duration: 2000,
+      });
     }
   };
   const renderDialogContent = () => {
@@ -193,10 +229,13 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
               }}
             >
               {actionItem.value === "download" ? (
-                <Link
-                  href={constructDownloadUrl(file.bucketFielId)}
-                  download={file.name}
+                <div
+                  // href={file.url}
+                  // download={file.name}
                   className="flex items-center gap-2"
+                  onClick={(e) => {
+                    downloadFile(file.url, file.name, file.extension);
+                  }}
                 >
                   <Image
                     src={actionItem.icon}
@@ -205,7 +244,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
                     height={30}
                   />
                   {actionItem.label}
-                </Link>
+                </div>
               ) : (
                 (actionItem.value !== "delete" ||
                   currentUserEmail === file.owner.email) && (

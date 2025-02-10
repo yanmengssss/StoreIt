@@ -8,24 +8,35 @@ import FormattedDateTime from "@/app/components/FormattedDateTime";
 import Thumbnail from "@/app/components/Thumbnail";
 import { Separator } from "@/components/ui/separator";
 import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
-import { convertFileSize, getUsageSummary } from "@/lib/utils";
+import { convertFileSize, getFileReadurl, getUsageSummary } from "@/lib/utils";
+import { getTotalData, getFiless } from "@/lib/apis/files";
 
 const Dashboard = async () => {
   // Parallel requests
-  const [res1, res2] = await Promise.all([
-    getFiles({ types: [], limit: 10 }),
-    getTotalSpaceUsed(),
+  let res1: any = null;
+  let res2: any = null;
+  [res1, res2] = await Promise.all([
+    // getFiles({ types: [], limit: 10 }),
+    getFiless({ limit: 10 }),
+    // getTotalSpaceUsed(),
+    getTotalData(),
   ]);
   let totalSpace: any = {};
-  let files: any = {
+  let files: {
+    documents: Models.Document[];
+    total: number;
+  } = {
     documents: [],
     total: 0,
   };
-  if (res2 && res2.code === 200) {
+  if (res2 && (res2.code as number) === 200) {
     totalSpace = res2.data;
   }
   if (res1 && res1.code === 200) {
-    files = res1.data;
+    files = res1.data as {
+      documents: Models.Document[];
+      total: number;
+    };
   }
   // Get usage summary
   const usageSummary = getUsageSummary(totalSpace);
@@ -76,10 +87,10 @@ const Dashboard = async () => {
           <ul className="mt-5 flex flex-col gap-5">
             {files.documents.map((file: Models.Document) => (
               <Link
-                href={file.url}
+                href={getFileReadurl(file.extension, file.url) || file.url}
                 target="_blank"
                 className="flex items-center gap-3"
-                key={file.$id}
+                key={file._id}
               >
                 <Thumbnail
                   type={file.type}
@@ -91,7 +102,7 @@ const Dashboard = async () => {
                   <div className="flex flex-col gap-1">
                     <p className="recent-file-name">{file.name}</p>
                     <FormattedDateTime
-                      date={file.$createdAt}
+                      date={file.createdAt}
                       className="caption"
                     />
                   </div>

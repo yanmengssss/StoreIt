@@ -33,7 +33,7 @@ export const calculateAngle = (sizeInBytes: number) => {
 };
 
 export const calculatePercentage = (sizeInBytes: number) => {
-  const totalSizeInBytes = 2 * 1024 * 1024 * 1024; // 2GB in bytes
+  const totalSizeInBytes = 7 * 1024 * 1024 * 1024; // 2GB in bytes
   const percentage = (sizeInBytes / totalSizeInBytes) * 100;
   return Number(percentage.toFixed(1));
 };
@@ -239,5 +239,39 @@ export const getFileTypesParams = (type: string) => {
       return ["other"];
     default:
       return ["document"];
+  }
+};
+
+export const getFileReadurl = (type: string, url: string) => {
+  if (type === "doc" || type === "docx")
+    return "https://view.officeapps.live.com/op/view.aspx?src=" + url;
+  else return url;
+};
+
+export const downloadFile = async (
+  fileUrl: string,
+  filename: string,
+  extension: string
+) => {
+  try {
+    let downloadUrl = null;
+    const response = await fetch(fileUrl);
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch the file");
+    }
+
+    const blob = await response.blob();
+    downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = (filename || fileUrl.split("/").pop()) as string; // 如果没有传 filename，则默认使用 URL 中的文件名
+    link.click();
+
+    // 清理创建的 URL
+    URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    console.error("Download failed", error);
+    alert("下载失败！");
   }
 };

@@ -4,12 +4,13 @@ import { Models } from "node-appwrite";
 import Card from "@/app/components/Card";
 import React from "react";
 import { convertFileSize, getFileTypesParams } from "@/lib/utils";
+import { getFiless } from "@/lib/apis/files";
 const Page = async ({ searchParams, params }: SearchParamProps) => {
   const type = (await params)?.type as string | "";
   const searchText = (await searchParams)?.query as string | "";
   const sort = (await searchParams)?.sort as string | "";
   const types = getFileTypesParams(type) as FileType[];
-  const res = await getFiles({ types, searchText, sort });
+  const res = await getFiless({ types, searchText, sort });
   let files: any = {
     documents: [],
     total: 0,

@@ -1,7 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import userStore from "@/store/user";
+import { useToast } from "@/hooks/use-toast";
 // import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -24,10 +24,12 @@ import { sendEmailOTP, verifyOTP } from "@/lib/actions/user.actions";
 import { useRouter } from "next/navigation";
 import { getOtp, login, register } from "@/lib/apis/user";
 const OTPModal = ({
+  changeAccountId,
   accountId,
   email,
   type,
 }: {
+  changeAccountId: any;
   accountId: string;
   email: string;
   type: string;
@@ -35,6 +37,7 @@ const OTPModal = ({
   const [otp, setOtp] = useState(true);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
   const router = useRouter();
   //appwrite
   // const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
@@ -47,7 +50,7 @@ const OTPModal = ({
   //       router.push("/");
   //     }
   //   } catch (error) {
-  //     console.log("Failed to verify OTP", error);
+  //     //console.log("Failed to verify OTP", error);
   //   }
   //   setLoading(false);
   // };
@@ -58,17 +61,22 @@ const OTPModal = ({
     if (type === "sign-in") {
       res = await login({
         email,
-        otp:password,
+        otp: password,
       });
     } else if (type === "sign-up") {
       res = await register({
         email,
-        otp:password,
+        otp: password,
         name: accountId,
       });
     }
     if (res.code === 200) {
       router.push("/");
+    } else {
+      toast({
+        duration: 2000,
+        description: <span className="text-error">验证码错误</span>,
+      });
     }
     setLoading(false);
   };
@@ -77,14 +85,29 @@ const OTPModal = ({
   //   try {
   //     await sendEmailOTP({ email });
   //   } catch (error) {
-  //     console.log("Failed to resend OTP", error);
+  //     //console.log("Failed to resend OTP", error);
   //   }
   // };
+  useEffect(() => {
+    if (!otp) {
+      changeAccountId(null);
+    }
+  }, [otp]);
   const handleResendOto = async () => {
-    await getOtp({
+    const res = await getOtp({
       email: email || "",
       type: type === "sign-in" ? "login" : "register",
     });
+    if (res.code == 200)
+      toast({
+        duration: 1000,
+        description: "重新发送成功",
+      });
+    else
+      toast({
+        duration: 2000,
+        description: <span className="text-error">验证码发送失败</span>,
+      });
   };
   return (
     <>

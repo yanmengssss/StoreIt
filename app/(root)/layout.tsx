@@ -6,12 +6,13 @@ import { getUserInfo } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
 import { getInfo } from "@/lib/apis/user";
+
 export const dynamic = "force-dynamic";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   let currentUser: any = await getInfo();
-  // console.log(currentUser);
+  //console.log(currentUser, 123);
   // const currentUser: any = await getInfo();
-  // console.log(a,123)
+  // //console.log(a,123)
   if (currentUser.code !== 200) {
     return redirect("/sign-in");
   }
@@ -21,7 +22,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
       <Slidebar {...currentUser} />
       <section className="flex h-full flex-1 flex-col">
         <MobileNavigatic {...currentUser} />
-        <Header ownerId={currentUser.$id} accountId={currentUser.accountId} />
+        <Header ownerId={currentUser._id} accountId={currentUser.accountId} />
         <div className="main-content">{children}</div>
       </section>
       <Toaster />

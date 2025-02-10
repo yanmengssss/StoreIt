@@ -9,7 +9,7 @@ import { revalidatePath } from "next/cache";
 import { getUserInfo } from "@/lib/actions/user.actions";
 import { getInfo } from "../apis/user";
 const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
+  //console.log(error, message);
   throw error;
 };
 
@@ -56,7 +56,7 @@ export const uploadFile = async ({
           message: error,
         };
       });
-    console.log(path, 123);
+    //console.log(path, 123);
     revalidatePath(path);
     // return parseStringfy(newFile);
     return {
@@ -100,6 +100,7 @@ export const getFiles = async ({
     };
   } catch (error) {
     // handleError(error, "Failed to get current user");
+    //console.log(error);
     return {
       code: 400,
       message: error,
@@ -276,7 +277,7 @@ export async function getTotalSpaceUsed() {
         totalSpace[fileType].latestDate = file.$updatedAt;
       }
     });
-    console.log(totalSpace);
+    //console.log(totalSpace);
     return {
       code: 200,
       data: totalSpace,
@@ -284,6 +285,7 @@ export async function getTotalSpaceUsed() {
     // return parseStringfy(totalSpace);
   } catch (error) {
     // handleError(error, "Error calculating total space used:, ");
+    //console.log(error);
     return {
       code: 400,
       message: error,

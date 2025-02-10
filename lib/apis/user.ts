@@ -30,3 +30,10 @@ export const getInfo = () => {
     method: "GET",
   });
 };
+
+export const logOut = () => {
+  return request({
+    url: "/user/logout",
+    method: "POST",
+  });
+};

@@ -6,9 +6,11 @@ import Image from "next/image";
 import { cn, convertFileToUrl, getFileType } from "@/lib/utils";
 import Thumbnail from "./Thumbnail";
 import { uploadFile } from "@/lib/actions/file.actions";
+import { uploadFiless } from "@/lib/apis/files";
 import { useToast } from "@/hooks/use-toast";
 import { MAX_FILE_SIZE } from "@/constants";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 interface Props {
   ownerId: string;
   accountId: string;
@@ -18,6 +20,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   const path = usePathname();
   const [files, setFiles] = useState<File[]>([]);
   const { toast } = useToast();
+  const router = useRouter();
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       setFiles(acceptedFiles);
@@ -26,7 +29,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
           setFiles((prevFiles) =>
             prevFiles.filter((prevFile) => prevFile.name !== file.name)
           );
-          return toast({
+          toast({
             description: (
               <p className="body-2 text-white">
                 <span className="font-semibold">{file.name}</span> is too large.
@@ -36,8 +39,30 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
             className: "error-toast",
           });
         }
-        return uploadFile({ file, ownerId, accountId, path }).then((res) => {
+        // return uploadFile({ file, ownerId, accountId, path }).then((res) => {
+        return uploadFiless({ file, ownerId, accountId }).then((res: any) => {
           if (res.code === 200) {
+            setFiles((prevFiles) =>
+              prevFiles.filter((prevFile) => prevFile.name !== file.name)
+            );
+            toast({
+              description: `${file.name} uploaded successfully`,
+              //时间为1s
+              duration: 1000,
+              variant: "default",
+            });
+          } else {
+            toast({
+              description: (
+                <span className="text-error">
+                  {" "}
+                  {file.name} uploaded failed ! {res.message}
+                </span>
+              ),
+              //时间为1s
+              duration: 1000,
+              variant: "default",
+            });
             setFiles((prevFiles) =>
               prevFiles.filter((prevFile) => prevFile.name !== file.name)
             );
@@ -45,6 +70,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
         });
       });
       await Promise.all(uploadPromise);
+      router.refresh();
     },
     [ownerId, accountId, path]
   );
