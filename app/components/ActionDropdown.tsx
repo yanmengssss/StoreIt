@@ -59,7 +59,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   useEffect(() => {
     const fetchUserEmail = async () => {
       const currentUser: any = await getInfo();
-      setCurrentUserEmail(currentUser.data.email);
+      setCurrentUserEmail(currentUser.data?.email);
     };
     fetchUserEmail();
   }, []);
