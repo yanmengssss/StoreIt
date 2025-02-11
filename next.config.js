@@ -28,7 +28,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "dthezntil550i.cloudfront.net",
+        hostname: "cdn.yanmengsss.xyz",
       },
       {
         protocol: "http",
