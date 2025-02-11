@@ -21,7 +21,7 @@ import {
   InputOTPSlot,
 } from "@/components/ui/input-otp";
 import { sendEmailOTP, verifyOTP } from "@/lib/actions/user.actions";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { getOtp, login, register } from "@/lib/apis/user";
 const OTPModal = ({
   changeAccountId,
@@ -54,6 +54,7 @@ const OTPModal = ({
   //   }
   //   setLoading(false);
   // };
+
   const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -71,14 +72,19 @@ const OTPModal = ({
       });
     }
     if (res.code === 200) {
-      router.push("/");
+      setTimeout(() => {
+        // 如果有必要检查 session，可以取消注释并添加逻辑
+        setLoading(false);
+        redirect("/");
+        // }
+      }, 2000);
     } else {
       toast({
         duration: 2000,
-        description: <span className="text-error">验证码错误</span>,
+        description: <span className="text-error">{res.message}</span>,
       });
+      setLoading(false);
     }
-    setLoading(false);
   };
   //重新发送 appwrite
   // const handleResendOto = async () => {
