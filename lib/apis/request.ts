@@ -1,7 +1,8 @@
 import axios from "axios";
 import { redirect } from "next/navigation";
-axios.defaults.baseURL = "http://47.119.148.251:7000";
+// axios.defaults.baseURL = "http://47.119.148.251:7000";
 // axios.defaults.baseURL = "http://127.0.0.1:7000";
+axios.defaults.baseURL = "https://yanmengsss.xyz";
 axios.defaults.withCredentials = true;
 (axios.defaults as any).credentials = "include";
 interface QueueItem {
