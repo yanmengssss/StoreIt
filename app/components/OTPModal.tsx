@@ -72,12 +72,12 @@ const OTPModal = ({
       });
     }
     if (res.code === 200) {
-      // setTimeout(() => {
+      setTimeout(() => {
         // 如果有必要检查 session，可以取消注释并添加逻辑
         setLoading(false);
         redirect("/");
         // }
-      // }, 10000);
+      }, 2000);
     } else {
       toast({
         duration: 2000,
