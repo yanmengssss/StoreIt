@@ -77,7 +77,7 @@ const OTPModal = ({
         setLoading(false);
         redirect("/");
         // }
-      }, 2000);
+      }, 5000);
     } else {
       toast({
         duration: 2000,

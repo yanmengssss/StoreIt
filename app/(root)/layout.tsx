@@ -10,7 +10,7 @@ import { getInfo } from "@/lib/apis/user";
 export const dynamic = "force-dynamic";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   let currentUser: any = await getInfo();
-  //console.log(currentUser, 123);
+  console.log(currentUser, 123);
   // const currentUser: any = await getInfo();
   // //console.log(a,123)
   if (currentUser.code !== 200) {
