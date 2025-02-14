@@ -29,24 +29,23 @@ const Page = ({ searchParams, params }: SearchParamProps) => {
     // setType((await params)?.type as string | "");
     // setsearchText((await searchParams)?.query as string | "");
     // setsort((await searchParams)?.sort as string | "");
-    setTimeout(async () => {
-      console.log(sort, searchText, getFileTypesParams(type), type, 123);
-      const res = await getFiless({
-        types: getFileTypesParams((await params)?.type as string | ""),
-        searchText: (await searchParams)?.query as string | "",
-        sort: (await searchParams)?.sort as string | "",
-      });
-      if (res && res.code === 200) {
-        setFiles(res.data);
 
-        // Calculate total size of files
-        let totalSize = 0;
-        res.data.documents?.forEach((file: Models.Document) => {
-          totalSize += file.size;
-        });
-        setSize(totalSize);
-      }
-    }, 0);
+    console.log(sort, searchText, getFileTypesParams(type), type, 123);
+    const res = await getFiless({
+      types: getFileTypesParams((await params)?.type as string | ""),
+      searchText: (await searchParams)?.query as string | "",
+      sort: (await searchParams)?.sort as string | "",
+    });
+    if (res && res.code === 200) {
+      setFiles(res.data);
+
+      // Calculate total size of files
+      let totalSize = 0;
+      res.data.documents?.forEach((file: Models.Document) => {
+        totalSize += file.size;
+      });
+      setSize(totalSize);
+    }
   };
 
   useEffect(() => {
