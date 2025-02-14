@@ -35,6 +35,10 @@ const nextConfig = {
         hostname: "dthezntil550i.cloudfront.net",
       },
       {
+        protocol: "https",
+        hostname: "img95.699pic.com",
+      },
+      {
         protocol: "http",
         hostname: "srd1wyx4f.hn-bkt.clouddn.com",
       },

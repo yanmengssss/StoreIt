@@ -34,8 +34,16 @@ import { getInfo } from "@/lib/apis/user";
 import { deleteFiless, reName, shareFile } from "@/lib/apis/files";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import commonStore from "@/store/common";
+const ActionDropdown = ({
+  file,
+  email: currentUserEmail,
+}: {
+  file: Models.Document;
+  email: string;
+}) => {
+  const { changePage, setChangePage } = commonStore();
 
-const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const path = usePathname();
   const router = useRouter();
   const { toast } = useToast();
@@ -45,7 +53,6 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const [name, setName] = useState(file.name.split(".").slice(0, -1).join("."));
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
-  const [currentUserEmail, setCurrentUserEmail] = useState("");
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -55,14 +62,6 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
       setisDropDownOpen(false);
     }
   }, [isModalOpen]);
-
-  useEffect(() => {
-    const fetchUserEmail = async () => {
-      const currentUser: any = await getInfo();
-      setCurrentUserEmail(currentUser.data?.email);
-    };
-    fetchUserEmail();
-  }, []);
 
   const closeAllModals = () => {
     setisModalOpen(false);
@@ -131,7 +130,9 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
         description: `File updated successfully`,
         duration: 2000,
       });
-      router.refresh();
+      // router.refresh();
+
+      setChangePage(!changePage);
     } else {
       setIsLoading(false);
       toast({

@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { MAX_FILE_SIZE } from "@/constants";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import commonStore from "@/store/common";
 interface Props {
   ownerId: string;
   accountId: string;
@@ -21,59 +22,63 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   const [files, setFiles] = useState<File[]>([]);
   const { toast } = useToast();
   const router = useRouter();
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles);
-      const uploadPromise = acceptedFiles.map(async (file) => {
-        if (file.size > MAX_FILE_SIZE) {
+  const { changePage, setChangePage } = commonStore();
+
+  const onDrop = async (acceptedFiles: File[]) => {
+    setFiles(acceptedFiles);
+    const uploadPromise = acceptedFiles.map(async (file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        setFiles((prevFiles) =>
+          prevFiles.filter((prevFile) => prevFile.name !== file.name)
+        );
+        toast({
+          description: (
+            <p className="body-2 text-white">
+              <span className="font-semibold">{file.name}</span> is too large.
+              Max file size is {MAX_FILE_SIZE}.
+            </p>
+          ),
+          className: "error-toast",
+        });
+      }
+      // return uploadFile({ file, ownerId, accountId, path }).then((res) => {
+      return uploadFiless({ file, ownerId, accountId }).then((res: any) => {
+        if (res.code === 200) {
           setFiles((prevFiles) =>
             prevFiles.filter((prevFile) => prevFile.name !== file.name)
           );
           toast({
-            description: (
-              <p className="body-2 text-white">
-                <span className="font-semibold">{file.name}</span> is too large.
-                Max file size is {MAX_FILE_SIZE}.
-              </p>
-            ),
-            className: "error-toast",
+            description: `${file.name} uploaded successfully`,
+            //时间为1s
+            duration: 1000,
+            variant: "default",
           });
+        } else {
+          toast({
+            description: (
+              <span className="text-error">
+                {" "}
+                {file.name} uploaded failed ! {res.message}
+              </span>
+            ),
+            //时间为1s
+            duration: 1000,
+            variant: "default",
+          });
+          setFiles((prevFiles) =>
+            prevFiles.filter((prevFile) => prevFile.name !== file.name)
+          );
         }
-        // return uploadFile({ file, ownerId, accountId, path }).then((res) => {
-        return uploadFiless({ file, ownerId, accountId }).then((res: any) => {
-          if (res.code === 200) {
-            setFiles((prevFiles) =>
-              prevFiles.filter((prevFile) => prevFile.name !== file.name)
-            );
-            toast({
-              description: `${file.name} uploaded successfully`,
-              //时间为1s
-              duration: 1000,
-              variant: "default",
-            });
-          } else {
-            toast({
-              description: (
-                <span className="text-error">
-                  {" "}
-                  {file.name} uploaded failed ! {res.message}
-                </span>
-              ),
-              //时间为1s
-              duration: 1000,
-              variant: "default",
-            });
-            setFiles((prevFiles) =>
-              prevFiles.filter((prevFile) => prevFile.name !== file.name)
-            );
-          }
-        });
       });
-      await Promise.all(uploadPromise);
-      router.refresh();
-    },
-    [ownerId, accountId, path]
-  );
+    });
+    await Promise.all(uploadPromise);
+    if (files.length === 0) {
+      console.log("上传完成");
+      setChangePage(!changePage);
+    }
+  };
+  // [ownerId, accountId]
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
   });

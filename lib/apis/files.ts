@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { request } from "./request";
 
 export const getTotalData = () => {
@@ -31,6 +32,9 @@ export const getFiless = (data: any) => {
     url: "/file/getFile",
     method: "GET",
     params: data,
+    headers: {
+      only: true,
+    },
   });
 };
 

@@ -1,10 +1,12 @@
 import axios from "axios";
 import { redirect } from "next/navigation";
+
 // axios.defaults.baseURL = "http://47.119.148.251:7000";
 // axios.defaults.baseURL = "http://127.0.0.1:7000";
 axios.defaults.baseURL = "https://yanmengsss.xyz";
 axios.defaults.withCredentials = true;
-
+//超时时间为20s
+axios.defaults.timeout = 20000;
 (axios.defaults as any).credentials = "include";
 interface QueueItem {
   options: any;
@@ -14,11 +16,18 @@ interface QueueItem {
 
 class RequestQueue {
   private queue: QueueItem[] = [];
+  private getFileQueue: QueueItem[] = [];
   private activeCount = 0;
   private readonly maxConcurrent = 3; //最大并发数
 
   async add(options: any): Promise<any> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
+      // const isServer = typeof window === "undefined";
+      // if (isServer) {
+      //   const { cookies } = await import("next/headers");
+      //   console.log(cookies(), (await cookies().get("storeIt")?.value) || "");
+      // }
+
       const queueItem = { options, resolve, reject };
       //查看请求参数的请求头是否有pop
       if (options.headers && options.headers.pop) {
@@ -30,6 +39,23 @@ class RequestQueue {
         } else {
           // 否则加入队列
           this.queue.push(queueItem);
+        }
+      } else if (options.headers && options.headers.only) {
+        //去掉请求头中的only
+        delete options.headers.only;
+        //取消 getFileQueue 内所有请求
+        this.getFileQueue.forEach((item) => {
+          item.resolve({ code: 300 });
+        });
+        this.getFileQueue = [];
+        //加入队列getFileQueue并执行
+        this.getFileQueue.push(queueItem);
+        //执行该请求
+        try {
+          const response = await axiosInstance(queueItem.options);
+          queueItem.resolve(response.data);
+        } catch (error) {
+          queueItem.resolve({ code: 400, error });
         }
       } else {
         this.processRequest(queueItem);

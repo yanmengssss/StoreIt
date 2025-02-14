@@ -7,7 +7,7 @@ import { parseStringfy } from "../utils";
 import { cookies } from "next/headers";
 import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
-import userStore from "@/store/user";
+import userStore from "@/store/common";
 //注册
 //查询数据库
 // 根据邮箱查询用户信息

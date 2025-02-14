@@ -1,28 +1,65 @@
+"use client";
+import { useState, useEffect } from "react";
 import Sort from "@/app/components/Sort";
-import { getFiles } from "@/lib/actions/file.actions";
+import { getFiless } from "@/lib/apis/files";
 import { Models } from "node-appwrite";
 import Card from "@/app/components/Card";
 import React from "react";
 import { convertFileSize, getFileTypesParams } from "@/lib/utils";
-import { getFiless } from "@/lib/apis/files";
-const Page = async ({ searchParams, params }: SearchParamProps) => {
-  const type = (await params)?.type as string | "";
-  const searchText = (await searchParams)?.query as string | "";
-  const sort = (await searchParams)?.sort as string | "";
-  const types = getFileTypesParams(type) as FileType[];
-  const res = await getFiless({ types, searchText, sort });
-  let files: any = {
+import { useSearchParams } from "next/navigation";
+import { useStore } from "zustand";
+import commonStore from "@/store/common";
+
+const Page = ({ searchParams, params }: SearchParamProps) => {
+  const [files, setFiles] = useState<any>({
     documents: [],
     total: 0,
-  };
-  if (res && res.code === 200) {
-    files = res.data;
-  }
-  let size = 0;
-  files.documents?.map((file: Models.Document) => {
-    size += file.size;
   });
+  const [size, setSize] = useState(0);
+  const { changePage } = commonStore();
+  // const type = (await params)?.type as string | "";
+  // const searchText = (await searchParams)?.query as string | "";
+  // const sort = (await searchParams)?.sort as string | "";
 
+  const [type, setType] = useState("");
+  const [searchText, setsearchText] = useState("");
+  const [sort, setsort] = useState("");
+  // const [types, setTypes] = useState([]);
+  const fetchData = async () => {
+    // setType((await params)?.type as string | "");
+    // setsearchText((await searchParams)?.query as string | "");
+    // setsort((await searchParams)?.sort as string | "");
+    setTimeout(async () => {
+      console.log(sort, searchText, getFileTypesParams(type), type, 123);
+      const res = await getFiless({
+        types: getFileTypesParams((await params)?.type as string | ""),
+        searchText: (await searchParams)?.query as string | "",
+        sort: (await searchParams)?.sort as string | "",
+      });
+      if (res && res.code === 200) {
+        setFiles(res.data);
+
+        // Calculate total size of files
+        let totalSize = 0;
+        res.data.documents?.forEach((file: Models.Document) => {
+          totalSize += file.size;
+        });
+        setSize(totalSize);
+      }
+    }, 0);
+  };
+
+  useEffect(() => {
+    setFiles({
+      documents: [],
+      total: 0,
+    });
+    setSize(0);
+    fetchData();
+  }, [searchParams, changePage]);
+  // useEffect(() => {
+  //   com
+  // }, []);
   return (
     <div className="page-container">
       <section className="w-full">
@@ -38,10 +75,11 @@ const Page = async ({ searchParams, params }: SearchParamProps) => {
         </div>
       </section>
       {files.total > 0 ? (
-        <section className="file-list" key="file-list">
+        // @ts-ignore
+        <section className="file-list" key={"file-list"}>
           {files.documents.map((file: Models.Document) => (
             <div className="file-item" key={file.$id}>
-              <Card file={file}></Card>
+              <Card file={file} key={file.$id} />
             </div>
           ))}
         </section>

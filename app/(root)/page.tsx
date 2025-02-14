@@ -1,7 +1,10 @@
+"use client";
+import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useStore } from "zustand";
 import Link from "next/link";
 import { Models } from "node-appwrite";
-
+import { getInfo } from "@/lib/apis/user";
 import ActionDropdown from "@/app/components/ActionDropdown";
 import { Chart } from "@/app/components/Chart";
 import FormattedDateTime from "@/app/components/FormattedDateTime";
@@ -10,36 +13,55 @@ import { Separator } from "@/components/ui/separator";
 import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
 import { convertFileSize, getFileReadurl, getUsageSummary } from "@/lib/utils";
 import { getTotalData, getFiless } from "@/lib/apis/files";
-
-const Dashboard = async () => {
-  // Parallel requests
-  let res1: any = null;
-  let res2: any = null;
-  [res1, res2] = await Promise.all([
-    // getFiles({ types: [], limit: 10 }),
-    getFiless({ limit: 10 }),
-    // getTotalSpaceUsed(),
-    getTotalData(),
-  ]);
-  let totalSpace: any = {};
-  let files: {
+import commonStore from "@/store/common";
+const Dashboard = () => {
+  // State to store the data for total space and files
+  const [totalSpace, setTotalSpace] = useState<any>({
+    image: { size: 0, latestDate: "" },
+    document: { size: 0, latestDate: "" },
+    video: { size: 0, latestDate: "" },
+    audio: { size: 0, latestDate: "" },
+    other: { size: 0, latestDate: "" },
+    used: 0,
+    all: 2 * 1024 * 1024 * 1024 /* 2GB available bucket storage */,
+  });
+  const changePage = useStore(commonStore, (state) => state.changePage);
+  const [files, setFiles] = useState<{
     documents: Models.Document[];
     total: number;
-  } = {
+  }>({
     documents: [],
     total: 0,
+  });
+  const [email, setEmail] = useState("");
+  const fetchData = async () => {
+    let res1: any = null;
+    let res2: any = null;
+    let res3: any = null;
+    [res1, res2, res3] = await Promise.all([
+      // getFiles({ types: [], limit: 10 }),
+      getFiless({ limit: 10 }),
+      // getTotalSpaceUsed(),
+      getTotalData(),
+      getInfo(),
+    ]);
+
+    if (res2 && res2.code === 200) {
+      setTotalSpace(res2.data);
+    }
+    if (res1 && res1.code === 200) {
+      setFiles(res1.data);
+    }
+    if (res3 && res3.code === 200) {
+      setEmail(res3.data.email);
+    }
   };
-  if (res2 && (res2.code as number) === 200) {
-    totalSpace = res2.data;
-  }
-  if (res1 && res1.code === 200) {
-    files = res1.data as {
-      documents: Models.Document[];
-      total: number;
-    };
-  }
+  useEffect(() => {
+    fetchData();
+  }, [changePage]);
+
   // Get usage summary
-  const usageSummary = getUsageSummary(totalSpace);
+  const usageSummary = getUsageSummary(totalSpace) || [];
 
   return (
     <div className="dashboard-container">
@@ -106,7 +128,7 @@ const Dashboard = async () => {
                       className="caption"
                     />
                   </div>
-                  <ActionDropdown file={file} />
+                  <ActionDropdown file={file} email={email} />
                 </div>
               </Link>
             ))}

@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import userStore from "@/store/user";
+import userStore from "@/store/common";
 import Search from "./Search";
 import FileUploader from "./FileUploader";
 import { signOut } from "@/lib/actions/user.actions";

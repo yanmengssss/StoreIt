@@ -17,7 +17,7 @@ import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import FileUploader from "./FileUploader";
 import { signOut } from "@/lib/actions/user.actions";
-import userStore from "@/store/user";
+import userStore from "@/store/common";
 import { logOut } from "@/lib/apis/user";
 import { redirect } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
@@ -36,16 +36,16 @@ const MobileNavigatic = ({
 }) => {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-    const { toast } = useToast();
-    const logout = async () => {
-      const res = await logOut();
-      if (res.code == 200) redirect("/sign-in");
-      else
-        toast({
-          duration: 2000,
-          description: <span className="text-error">退出登陆失败</span>,
-        });
-    };
+  const { toast } = useToast();
+  const logout = async () => {
+    const res = await logOut();
+    if (res.code == 200) redirect("/sign-in");
+    else
+      toast({
+        duration: 2000,
+        description: <span className="text-error">退出登陆失败</span>,
+      });
+  };
   return (
     <header className="mobile-header">
       <Image
