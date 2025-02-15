@@ -6,8 +6,8 @@ import { Models } from "node-appwrite";
 import Card from "@/app/components/Card";
 import React from "react";
 import { convertFileSize, getFileTypesParams } from "@/lib/utils";
-import { useSearchParams } from "next/navigation";
-import { useStore } from "zustand";
+// import { useSearchParams } from "next/navigation";
+// import { useStore } from "zustand";
 import commonStore from "@/store/common";
 
 const Page = ({ searchParams, params }: SearchParamProps) => {
