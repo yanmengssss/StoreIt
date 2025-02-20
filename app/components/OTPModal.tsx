@@ -6,23 +6,24 @@ import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
+  // AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  // AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   InputOTP,
   InputOTPGroup,
-  InputOTPSeparator,
+  // InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
-import { sendEmailOTP, verifyOTP } from "@/lib/actions/user.actions";
-import { redirect, useRouter } from "next/navigation";
+// import { sendEmailOTP, verifyOTP } from "@/lib/actions/user.actions";
+import { redirect } from "next/navigation";
 import { getOtp, login, register } from "@/lib/apis/user";
+
 const OTPModal = ({
   changeAccountId,
   accountId,
@@ -37,8 +38,10 @@ const OTPModal = ({
   const [otp, setOtp] = useState(true);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [number, setNumber] = useState(0);
+  const [t, setT] = useState<any>(null);
   const { toast } = useToast();
-  const router = useRouter();
+  // const router = useRouter();
   //appwrite
   // const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
   //   e.preventDefault();
@@ -99,21 +102,37 @@ const OTPModal = ({
     }
   }, [otp]);
   const handleResendOto = async () => {
+    setNumber(60); // Start the countdown from 60 seconds
+    const timeoutId = setInterval(() => {
+      setNumber((prevNumber) => {
+        if (prevNumber > 1) {
+          return prevNumber - 1;
+        } else {
+          clearInterval(timeoutId); // Clear the interval when countdown reaches 0
+          return 0;
+        }
+      });
+    }, 1000); // Update every second
+
+    // Send the OTP
     const res = await getOtp({
       email: email || "",
       type: type === "sign-in" ? "login" : "register",
     });
-    if (res.code == 200)
+
+    if (res.code === 200) {
       toast({
         duration: 1000,
         description: "重新发送成功",
       });
-    else
+    } else {
       toast({
         duration: 2000,
         description: <span className="text-error">验证码发送失败</span>,
       });
+    }
   };
+
   return (
     <>
       <AlertDialog open={otp} onOpenChange={setOtp}>
@@ -166,9 +185,19 @@ const OTPModal = ({
               </AlertDialogAction>
               <div className="text-center subtitle-2 text-light-100 mt-2">
                 没有收到验证码？
-                <button className="pl-1 text-brand" onClick={handleResendOto}>
-                  重新发送
-                </button>
+                {number === 0 ? (
+                  <button
+                    className="pl-1 text-brand"
+                    onClick={handleResendOto}
+                    disabled={number > 0}
+                  >
+                    重新发送
+                  </button>
+                ) : (
+                  <span className="pl-1 text-brand">
+                    请{number}秒后再次发送
+                  </span>
+                )}
               </div>
             </div>
           </AlertDialogFooter>

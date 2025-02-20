@@ -1,16 +1,16 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { getFiles } from "@/lib/actions/file.actions";
+// import { getFiles } from "@/lib/actions/file.actions";
 import { Models } from "node-appwrite";
 import { useDebounce } from "use-debounce";
 import Thumbnail from "./Thumbnail";
 import FormattedDateTime from "./FormattedDateTime";
 import { getFiless } from "@/lib/apis/files";
 
-const Search = () => {
+const Searchs = () => {
   const [query, setQuery] = useState("");
   const searchParams = useSearchParams();
   const searchText = searchParams.get("query") || "";
@@ -100,6 +100,13 @@ const Search = () => {
         )}
       </div>
     </div>
+  );
+};
+const Search = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Searchs />
+    </Suspense>
   );
 };
 export default Search;

@@ -46,7 +46,7 @@ import { getInfo } from "@/lib/apis/user";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [currentUser, setCurrentUser] = useState<any>({
-    _id: "67ad7b7ffab76412f085b94d",
+    _id: "67b0625f23d8814bd897d98a",
     fullName: "withoutLogin",
     email: "withoutLogin",
     accountId: "-1",
