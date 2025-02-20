@@ -76,7 +76,7 @@ const OTPModal = ({
     }
     if (res.code === 200) {
       // 如果有必要检查 session，可以取消注释并添加逻辑
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.token);
       setLoading(false);
       redirect("/");
       // }
