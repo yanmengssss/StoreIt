@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { request } from "./request";
 
 export const getOtp = (data: any) => {
@@ -13,6 +14,9 @@ export const login = (data: any) => {
     url: "/user/login",
     method: "POST",
     data,
+    headers: {
+      noAu: false,
+    },
   });
 };
 
@@ -21,6 +25,9 @@ export const register = (data: any) => {
     url: "/user/register",
     method: "POST",
     data,
+    headers: {
+      noAu: false,
+    },
   });
 };
 

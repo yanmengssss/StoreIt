@@ -29,6 +29,14 @@ class RequestQueue {
       // }
 
       const queueItem = { options, resolve, reject };
+      if (options.headers && !options.headers.noAu) {
+        delete options.headers.noAu;
+        //如果请求头中有noAu则不添加请求头
+        options.headers = {
+          ...options.headers,
+          Authorization: localStorage.getItem("token") || "",
+        };
+      }
       //查看请求参数的请求头是否有pop
       if (options.headers && options.headers.pop) {
         //去掉请求头中的pop
